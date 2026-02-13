@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Data files (large datasets)
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.parquet
+*.h5
+*.zip
+*.tar
+*.gz
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Model files (large binaries)
+*.pkl
+*.joblib
+*.h5
+*.onnx

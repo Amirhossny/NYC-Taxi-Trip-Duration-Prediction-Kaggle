@@ -1,0 +1,67 @@
+data:
+  paths:
+    train: "Data/train.csv"
+    val: "Data/val.csv"
+    test: "Data/test.csv"
+  target_col: "trip_duration"
+
+
+features_engineering:
+  use_time_features: true
+  use_distance_features: true
+  use_haversine: true
+  use_manhattan: true
+  use_bearing: true
+  use_cluster_features: true
+  n_clusters: 100
+  n_bins: 10 
+  clustering:
+    cluster_model: "Kmeans_helper/kmeans.pkl"
+    cluster_pair_avg: "Kmeans_helper/cluster_pair_avg.pkl"
+
+
+
+features:
+  numerical:
+    - passenger_count
+    - pickup_longitude
+    - pickup_latitude
+    - dropoff_longitude
+    - dropoff_latitude
+    - haversine_distance
+    - bearing
+    - manhattan_distance
+    - pickup_cluster
+    - dropoff_cluster
+    - cluster_pair_avg_duration
+
+  time:
+    - pickup_hour
+    - pickup_weekday
+    - pickup_month
+
+  # time_encoded:
+  #   - pickup_hour_sin
+  #   - pickup_hour_cos
+  #   - pickup_weekday_sin
+  #   - pickup_weekday_cos
+  #   - pickup_month_sin
+  #   - pickup_month_cos
+
+  categorical:
+    regular:
+      - vendor_id
+    binary:
+      - store_and_fwd_flag
+
+optimizer:
+  ridge: 0.01
+  lasso: 0.01
+    
+remove_outliers: true
+
+outlier_factor: 6
+
+log_target: true
+
+poly_degree: 1
