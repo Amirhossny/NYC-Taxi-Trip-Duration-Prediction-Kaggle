@@ -40,13 +40,13 @@ features:
     - pickup_weekday
     - pickup_month
 
-  # time_encoded:
-  #   - pickup_hour_sin
-  #   - pickup_hour_cos
-  #   - pickup_weekday_sin
-  #   - pickup_weekday_cos
-  #   - pickup_month_sin
-  #   - pickup_month_cos
+  time_encoded:
+    - pickup_hour_sin
+    - pickup_hour_cos
+    - pickup_weekday_sin
+    - pickup_weekday_cos
+    - pickup_month_sin
+    - pickup_month_cos
 
   categorical:
     regular:

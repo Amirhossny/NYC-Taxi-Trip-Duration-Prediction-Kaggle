@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
-from sklearn.discriminant_analysis import StandardScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, r2_score
+from src.Feature_Engineering import build_features
 
 
 
@@ -80,32 +81,42 @@ if __name__ == "__main__":
     # Clean + outliers
     df_train = data_cleaning(df_train)
     df_train = remove_outliers(df_train, target_col)
-    df_train = encode_store_flag(df_train)
-    df_val = data_cleaning(df_val)
+    # df_train = encode_store_flag(df_train)
+   
+    
     # Features
-    print("BEFORE FE:", df_train.columns.tolist())
-    df_train = add_time_features(df_train)
-    df_train = add_cyclical_encoding(df_train)
-    df_train = add_distance_features(df_train)
-    print("AFTER FE:", df_train.columns.tolist())
+    # print("BEFORE FE:", df_train.columns.tolist())
+    # df_train = add_time_features(df_train)
+    # df_train = add_cyclical_encoding(df_train)
+    # df_train = add_distance_features(df_train)
+    # print("AFTER FE:", df_train.columns.tolist())
 
     # Split features/target
-    X_train = df_train.drop(columns=[target_col, "pickup_datetime", "id"], errors="ignore")
+    X_train = df_train.drop(columns=[target_col, "id"], errors="ignore") #
     y_train = preprocess_target(df_train[target_col])
 
     df_val = data_cleaning(df_val)
     df_val = remove_outliers(df_val, target_col)
-    df_val = encode_store_flag(df_val)
+    # df_val = encode_store_flag(df_val)
 
-    df_val = add_time_features(df_val)
-    df_val = add_cyclical_encoding(df_val)
-    df_val = add_distance_features(df_val)
+    # df_val = add_time_features(df_val)
+    # df_val = add_cyclical_encoding(df_val)
+    # df_val = add_distance_features(df_val)
 
-    X_val = df_val.drop(columns=[target_col, "pickup_datetime", "id"], errors="ignore")
+    X_val = df_val.drop(columns=[target_col, "id"], errors="ignore")
     y_val = preprocess_target(df_val[target_col])
 
-    print("FINAL COLUMNS:", X_train.columns.tolist())
+    # print("FINAL COLUMNS:", X_train.columns.tolist())
 
+    
+
+    X_train = build_features(X_train, use_time_features=True, use_distance_features=True, use_manhattan=True, use_haversine=True, use_bearing=False)
+
+    X_val = build_features(X_val,use_time_features=True,use_distance_features=True,use_manhattan=True,use_haversine=True,use_bearing=False)
+
+    print("FINAL COLUMNS:", X_train.columns.tolist())
+    print("FINAL COLUMNS:", X_val.columns.tolist())
+    
     # Fit Ridge model
     model = Ridge(alpha=0.01)
     scaler = StandardScaler()

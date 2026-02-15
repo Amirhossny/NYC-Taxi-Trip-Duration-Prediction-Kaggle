@@ -6,6 +6,12 @@ from src.Preprocessing import preprocess_data
 from src.eval import evaluate
 from src.logger import setup_logging, log_metrics
 from src.Helper_Fun import load_data, load_config, save_model, load_model
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge, Lasso
+from src.Feature_Engineering import FeatureEngineering
+import numpy as np
+import pandas as pd
+from sklearn.metrics import r2_score, mean_squared_error
 
 # -------- Paths --------
 BASE_DIR = Path(__file__).resolve().parent
@@ -43,6 +49,8 @@ x_test, y_test = preprocess_data(df_test, target_col=target_col, is_train=False,
 
 
 
+
+
 def train_and_evaluate_model(model_name, x_train, y_train, x_val, y_val, use_log):
 
     logger.info(f"Training & validating {model_name} model")
@@ -77,35 +85,51 @@ def test_model(model_name, x_test, y_test, use_log):
 if __name__ == "__main__":
     
     
-    train_and_evaluate_model("ridge", x_train, y_train, x_val, y_val, use_log)
+    # train_and_evaluate_model("ridge", x_train, y_train, x_val, y_val, use_log)
     
     
-    # for model_name in ["ridge", "lasso"]:
-    #     train_and_evaluate_model(model_name, x_train, y_train, x_val, y_val, use_log)
-    #     test_model(model_name, x_test, y_test, use_log)
-        
+    fe = FeatureEngineering(fe_con)
+    x_train = fe.fit_transform(x_train)
+    x_val = fe.transform(x_val)
+
+    scaler = StandardScaler()
+
+    x_train_scaled = pd.DataFrame(
+        scaler.fit_transform(x_train),
+        columns=x_train.columns,
+        index=x_train.index
+    )
+
+    x_val_scaled = pd.DataFrame(
+        scaler.transform(x_val),
+        columns=x_val.columns,
+        index=x_val.index
+    )
+
     
+    # print("NaNs in val:")
+    # print(
+    #     x_val.isna()
+    #     .sum()
+    #     .sort_values(ascending=False)
+    #     .head(10)
+    # )
+
+    # print(
+    #     "cluster_pair_avg_duration NaN ratio:",
+    #     x_val["cluster_pair_avg_duration"].isna().mean()
+    # )
+
+    # print("Train columns:", x_train.columns.tolist())
+    # print("Val columns:", x_val.columns.tolist())
+
+    # print("NaNs in train:")
+    # print(x_train.isna().sum().sort_values(ascending=False).head(10))
     
-    # from src.Feature_Engineering import FeatureEngineering
-    
-    # print("BEFORE FE:", x_train.columns.tolist())
-    # feature_engineering = FeatureEngineering(fe_con)
-    # print("FINAL FEATURES COUNT:", x_train.shape)
-    # print(x_train.dtypes)
-    # X_fe = feature_engineering.fit_transform(x_train)
-    # print("AFTER FE:", X_fe.columns.tolist())
-    # # train_and_evaluate_model("ridge", x_train, y_train, x_val, y_val, use_log)
-    # feature_engineering = FeatureEngineering(fe_con)
-    # X_fe = feature_engineering.fit_transform(x_train)
-    # print(X_fe.columns)
-    
-    # preprocessor = build_preprocessor(config)
-    # X_transformed = preprocessor.fit_transform(x_train)
-    # print(X_transformed.shape)
-    # print(X_transformed.columns.tolist())
-    
-    # # print(len(x_train), len(y_train))
-    # # print(y_train.describe())
-    
-    # model = LinearRegression()
-    # model.fit(x_train.select_dtypes(include=np.number), y_train)
+    model = Ridge(alpha=1.0)
+    model.fit(x_train, y_train)
+    preds = model.predict(x_val)
+    rmse = np.sqrt(mean_squared_error(y_val, preds))
+    r2 = r2_score(y_val, preds)
+
+    print(f"Ridge RMSE = {rmse:.4f} & R2 = {r2:.4f}")

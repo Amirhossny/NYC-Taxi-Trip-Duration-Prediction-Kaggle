@@ -1,23 +1,6 @@
-import pandas as pd
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
 
-
-# def evaluate(x_test , t_test , model, name, use_log=False):
-#     pred_t = model.predict(x_test)
-    
-#     if use_log:
-       
-#         y_pred_real = np.expm1(pred_t)
-#         y_true_real = t_test  
-#     else:
-#         y_pred_real = pred_t
-#         y_true_real = t_test
-
-#     rmse = np.sqrt(mean_squared_error(y_true_real, y_pred_real))
-#     r2 = r2_score(y_true_real, y_pred_real)
-#     print(f"{name} RMSE = {rmse:.4f} & R2 = {r2:.4f}")
-#     return {'r2': r2, 'rmse': rmse}
 
 def inverse_target(y_transformed, use_log=True):
     if use_log:
@@ -31,5 +14,5 @@ def evaluate(X_test, y_test, model, name, use_log=True):
 
     rmse = np.sqrt(mean_squared_error(y_true_real, y_pred_real))
     r2 = r2_score(y_true_real, y_pred_real)
-    print(f"{name} RMSE = {rmse:.4f} & R2 = {r2:.4f}")
+    # print(f"{name} RMSE = {rmse:.4f} & R2 = {r2:.4f}")
     return {'r2': r2, 'rmse': rmse}
