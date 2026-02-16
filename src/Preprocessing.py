@@ -49,67 +49,77 @@ def inverse_target(y_transformed, use_log=True):
 
 
 # --- binary encoding (store_and_fwd_flag) ---
-# def encode_store_flag(df):
-#     df = df.copy()
-#     df["store_and_fwd_flag"] = df["store_and_fwd_flag"].map({"Y":1,"N":0})
-#     return df[['store_and_fwd_flag']]
+def encode_store_flag(df):
+    df = df.copy()
+    df["store_and_fwd_flag"] = df["store_and_fwd_flag"].fillna("N").map({"Y":1,"N":0})
+    return df[['store_and_fwd_flag']]
+
+def _filter_existing_columns(config_cols, df_columns):
+    return [c for c in config_cols if c in df_columns]
 
 # --- build preprocessor pipeline ---
 
+def build_preprocessor(pre_conf: dict, df_columns):
+    # -------- Numerical Features --------
+    numerical_features = []
+    numerical_features += _filter_existing_columns(pre_conf.get("numerical", []), df_columns)
+    numerical_features += _filter_existing_columns(pre_conf.get("time", []), df_columns)
+    numerical_features += _filter_existing_columns(pre_conf.get("time_encoded", []), df_columns)
 
+    # -------- Categorical Features --------
+    categorical_conf = pre_conf.get("categorical", {})
+    categorical_features = _filter_existing_columns(
+        categorical_conf.get("regular", []), df_columns
+    )
+    binary_features = _filter_existing_columns(
+        categorical_conf.get("binary", []), df_columns
+    )
 
-# def build_preprocessor(pre_conf, df_columns, fe_config):
-#     numerical_features = [f for f in pre_conf.get("numerical", []) if f in df_columns]
+    
+    # -------- Pipelines --------
+    num_pipeline = Pipeline([
+        ("imputer", SimpleImputer(strategy="mean")),
+        ("scaler", StandardScaler())
+    ])
 
-#     time_encoded_features = [f for f in pre_conf.get("time_encoded", []) if f in df_columns]
-#     numerical_features += time_encoded_features 
+    cat_pipeline = Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
+    ])
 
-#     categorical = pre_conf.get("categorical", {})
-#     categorical_features = [f for f in categorical.get("regular", []) if f in df_columns]
-#     binary_features = [f for f in categorical.get("binary", []) if f in df_columns]
+    bin_pipeline = Pipeline([
+        ("encode", FunctionTransformer(encode_store_flag)),
+        ("imputer", SimpleImputer(strategy="most_frequent"))
+        
+    ])
 
-#     num_pipeline = Pipeline([("imputer", SimpleImputer(strategy="mean")), ("scaler", StandardScaler())])
-#     cat_pipeline = Pipeline([("imputer", SimpleImputer(strategy="most_frequent")),
-#                              ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False))])
-#     bin_pipeline = Pipeline([("imputer", SimpleImputer(strategy="most_frequent")),
-#                              ("encode", FunctionTransformer(encode_store_flag))])
+    transformers = []
 
-#     transformers = [
-#         ("num", num_pipeline, numerical_features),
-#         ("cat", cat_pipeline, categorical_features),
-#         ("bin", bin_pipeline, binary_features)
-#     ]
+    if 'cluster_pair_avg_duration' in df_columns:
+        transformers.append((
+            "avg_cluster_imputer",
+            SimpleImputer(strategy="mean"),
+            ["cluster_pair_avg_duration"]
+        ))
+    
+    if numerical_features:
+        transformers.append(("num", num_pipeline, numerical_features))
 
-#     preprocessor = ColumnTransformer(transformers=transformers, remainder="drop")
-#     preprocessor.set_output(transform="pandas")
-#     return preprocessor
+    if categorical_features:
+        transformers.append(("cat", cat_pipeline, categorical_features))
 
-# def build_preprocessor(self, df_columns):
+    if binary_features:
+        transformers.append(("bin", bin_pipeline, binary_features))
 
-#     numerical_features = [
-#         "passenger_count",
-#         "pickup_longitude", "pickup_latitude",
-#         "dropoff_longitude", "dropoff_latitude",
-#         "pickup_hour", "pickup_day", "pickup_month", "pickup_weekday",
-#         "is_weekend", "rush_hour",
-#         "delta_latitude", "delta_longitude",
-#         "manhattan_distance", "haversine_distance", "bearing"
-#     ]
+    # -------- Column Transformer --------
+    preprocessor = ColumnTransformer(
+        transformers=transformers,
+        remainder="passthrough"  
+    )
 
-#     categorical_features = [
-#         "vendor_id",
-#         "store_and_fwd_flag",
-#         "pickup_cluster",
-#         "dropoff_cluster"
-#     ]
+    preprocessor.set_output(transform="pandas")
+    return preprocessor
 
-#     return ColumnTransformer(
-#         transformers=[
-#             ("num", StandardScaler(), numerical_features),
-#             ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features),
-#         ],
-#         remainder="drop"
-#     )
 
 def preprocess_data(df, target_col, is_train=False, use_log= True):
     df = data_cleaning(df) 
@@ -123,41 +133,3 @@ def preprocess_data(df, target_col, is_train=False, use_log= True):
     return x, y
 
 
-# def build_preprocessor(config):
-#     numerical_features = (
-#         config["features"]["numerical"]["base"] +
-#         config["features"]["numerical"]["distance"] +
-#         config["features"]["numerical"]["cluster"]
-#     )
-#     categorical_features = config["features"]["categorical"]["regular"]
-#     binary_features = config["features"]["categorical"]["binary"]
-
-#     # numerical pipeline
-#     num_pipeline = Pipeline([
-#         ("imputer", SimpleImputer(strategy="mean")),
-#         ("scaler", StandardScaler())
-#     ])
-
-#     # categorical pipeline
-#     cat_pipeline = Pipeline([
-#         ("imputer", SimpleImputer(strategy="most_frequent")),
-#         ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
-#     ])
-
-#     # binary pipeline
-#     bin_pipeline = Pipeline([
-#         ("imputer", SimpleImputer(strategy="most_frequent")),
-#         ("mapper", FunctionTransformer(encode_store_flag))
-#     ])
-
-#     preprocessor = ColumnTransformer(
-#         transformers=[
-#             ("num", num_pipeline, numerical_features),
-#             ("cat", cat_pipeline, categorical_features),
-#             ("bin", bin_pipeline, binary_features)
-#         ],
-#         remainder="drop"  # كل الأعمدة الغير مستخدمة هتتشال
-#     )
-
-#     preprocessor.set_output(transform="pandas")
-#     return preprocessor

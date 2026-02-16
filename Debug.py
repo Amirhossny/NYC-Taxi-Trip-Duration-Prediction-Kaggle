@@ -9,7 +9,7 @@ from src.Feature_Engineering import build_features
 
 # ---------------- Data Cleaning & Outlier Removal ----------------
 def data_cleaning(df):
-    # مثال: شيل أي صفوف مفقودة أو قيم غير منطقية
+    
     df = df.dropna(subset=["pickup_latitude", "pickup_longitude", "dropoff_latitude", "dropoff_longitude"])
     df = df[df["passenger_count"] > 0]
     return df

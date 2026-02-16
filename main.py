@@ -84,52 +84,16 @@ def test_model(model_name, x_test, y_test, use_log):
 
 if __name__ == "__main__":
     
-    
-    # train_and_evaluate_model("ridge", x_train, y_train, x_val, y_val, use_log)
-    
-    
-    fe = FeatureEngineering(fe_con)
-    x_train = fe.fit_transform(x_train)
-    x_val = fe.transform(x_val)
-
-    scaler = StandardScaler()
-
-    x_train_scaled = pd.DataFrame(
-        scaler.fit_transform(x_train),
-        columns=x_train.columns,
-        index=x_train.index
-    )
-
-    x_val_scaled = pd.DataFrame(
-        scaler.transform(x_val),
-        columns=x_val.columns,
-        index=x_val.index
-    )
 
     
-    # print("NaNs in val:")
-    # print(
-    #     x_val.isna()
-    #     .sum()
-    #     .sort_values(ascending=False)
-    #     .head(10)
-    # )
-
-    # print(
-    #     "cluster_pair_avg_duration NaN ratio:",
-    #     x_val["cluster_pair_avg_duration"].isna().mean()
-    # )
-
-    # print("Train columns:", x_train.columns.tolist())
-    # print("Val columns:", x_val.columns.tolist())
-
-    # print("NaNs in train:")
-    # print(x_train.isna().sum().sort_values(ascending=False).head(10))
-    
-    model = Ridge(alpha=1.0)
-    model.fit(x_train, y_train)
-    preds = model.predict(x_val)
+    trainer = ModelPipeline(config)
+    trainer.fit(x_train, y_train, model_type="ridge")
+    preds = trainer.predict(x_val)
     rmse = np.sqrt(mean_squared_error(y_val, preds))
     r2 = r2_score(y_val, preds)
 
     print(f"Ridge RMSE = {rmse:.4f} & R2 = {r2:.4f}")
+    
+
+    
+    
