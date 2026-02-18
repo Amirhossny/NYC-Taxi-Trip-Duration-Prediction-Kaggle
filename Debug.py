@@ -39,7 +39,7 @@ def add_cyclical_encoding(df):
     df["pickup_weekday_cos"] = np.cos(2 * np.pi * df["pickup_weekday"] / 7)
     df["pickup_month_sin"] = np.sin(2 * np.pi * df["pickup_month"] / 12)
     df["pickup_month_cos"] = np.cos(2 * np.pi * df["pickup_month"] / 12)
-    # اختياري: ممكن تمسح الأعمدة الأصلية لو عايز
+  
     df = df.drop(columns=["pickup_hour","pickup_weekday","pickup_month"], errors="ignore")
     return df
 

@@ -55,7 +55,7 @@ features:
       - store_and_fwd_flag
 
 optimizer:
-  ridge: 10
+  ridge: 1
   lasso: 0.01
     
 remove_outliers: true

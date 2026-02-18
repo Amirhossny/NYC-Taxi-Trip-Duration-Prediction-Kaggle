@@ -3,9 +3,6 @@ import yaml
 import joblib
 import os
 
-
-
-
 def load_data(path):
     df = pd.read_csv(path)
     return df

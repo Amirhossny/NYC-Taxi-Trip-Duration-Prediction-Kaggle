@@ -27,8 +27,6 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
     def transform(self, X):
         df = X.copy()
 
-        # df = self._encode_store_and_fwd_flag(df)
-        
         if self.use_time_features:
             df = self._add_time_features(df)
             df = self._add_cyclical_encoding(df)
@@ -40,11 +38,7 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
             df = self._add_cluster_features(df)
 
         return df
-    # # ---------- Binary Encoding ----------
-    # def _encode_store_and_fwd_flag(self, df):
-    #     if "store_and_fwd_flag" in df.columns:
-    #         df["store_and_fwd_flag"] = df["store_and_fwd_flag"].map({"Y": 1, "N": 0})
-    #     return df
+
     # ---------- Time Features ----------
     def _add_time_features(self, df):
         if "pickup_datetime" not in df.columns:

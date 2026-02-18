@@ -1,0 +1,28 @@
+Training & validating ridge model
+========================================
+Stage : val
+Model : ridge
+R2_LOG: 0.6110
+RMSE  : 9085.4967
+========================================
+Testing ridge model
+========================================
+Stage : test
+Model : ridge
+R2_LOG: 0.6171
+RMSE  : 5067.9335
+========================================
+Training & validating lasso model
+========================================
+Stage : val
+Model : lasso
+R2_LOG: 0.6081
+RMSE  : 9085.3546
+========================================
+Testing lasso model
+========================================
+Stage : test
+Model : lasso
+R2_LOG: 0.6140
+RMSE  : 5068.0410
+========================================

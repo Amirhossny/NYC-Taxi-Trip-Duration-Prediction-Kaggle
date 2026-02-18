@@ -4,7 +4,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 import numpy as np
 
-
 def remove_outliers(df,target_col ,factor=1.5):
     filtered_df = df.copy()
     Q1 = filtered_df[target_col].quantile(0.25)
@@ -44,8 +43,6 @@ def inverse_target(y_transformed, use_log=True):
     if use_log:
         return np.expm1(y_transformed)
     return y_transformed
-
-
 
 
 # --- binary encoding (store_and_fwd_flag) ---
